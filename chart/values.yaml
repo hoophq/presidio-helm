@@ -1,0 +1,25 @@
+
+# Presidio version information: https://github.com/microsoft/presidio/releases
+version: latest
+
+# analyzer service configuration
+analyzer:
+  replicas: 1
+  resources:
+    limits:
+      cpu: 512m
+      memory: 1024Mi
+    requests:
+      cpu: 256m
+      memory: 1024Mi
+
+# anonymizer service configuration
+anonymizer:
+  replicas: 1
+  resources:
+    limits:
+      cpu: 512m
+      memory: 512Mi
+    requests:
+      cpu: 256m
+      memory: 512Mi

@@ -1,2 +1,3 @@
-# presidio-helm
-Presidio Chart Maintained by Hoop
+# Presidio Helm Chart
+
+A Presidio Helm Chart maintained by the Hoop team.
