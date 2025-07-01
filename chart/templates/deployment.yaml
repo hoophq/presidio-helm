@@ -15,7 +15,7 @@ spec:
       containers:
       - image: '{{ .Values.analyzer.imageRepository | default "mcr.microsoft.com/presidio-analyzer" }}:{{ .Values.version | default "latest" }}'
         name: presidio-analyzer
-        imagePullPolicy: {{ .Values.analyzer.imagePullPolicy | default "Always" }}
+        imagePullPolicy: {{ .Values.analyzer.imagePullPolicy | default "Alwas" }}
         resources:
           {{- toYaml .Values.analyzer.resources | nindent 10 }}
         ports:
