@@ -13,7 +13,7 @@ permissions:
   contents: write
 
 jobs:
-  goreleaser:
+  presidio-helm-release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -22,6 +22,8 @@ jobs:
           fetch-depth: 0
       - name: Test
         run: make test
+      - name: Set Git Tag
+        run: echo "GIT_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
       - name: Publish Helm Chart
         env:
           GIT_TAG: ${{ env.GIT_TAG }}
