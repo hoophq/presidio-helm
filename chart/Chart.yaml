@@ -1,5 +1,5 @@
 apiVersion: v2
-name: presidio
+name: presidio-chart
 description: A Helm chart for Microsoft Presidio
 type: application
 version: 0.0.1

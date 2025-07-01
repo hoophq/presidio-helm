@@ -23,3 +23,9 @@ jobs:
           fetch-depth: 0
       - name: Test
         run: make test
+      - name: Publish Helm Chart
+        env:
+          GIT_TAG: ${{ env.GIT_TAG }}
+          GITHUB_CONTAINER_REGISTRY_TOKEN: ${{ secrets.GH_CONTAINER_REGISTRY_TOKEN }}
+          GITHUB_USERNAME: ${{ github.actor }}
+        run: make publish

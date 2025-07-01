@@ -13,7 +13,7 @@ spec:
         app: presidio-analyzer
     spec:
       containers:
-      - image: '{{ .Values.analyzer.imageRepository | default "mcr.microsoft.com/presidio-analyzer" }}:{{ .Values.version | default "latest" }}'
+      - image: '{{ .Values.analyzer.imageRepository | default "mcr.microsoft.com/presidio-analyzer" }}:{{ .Values.imageVersion | default "latest" }}'
         name: presidio-analyzer
         imagePullPolicy: {{ .Values.analyzer.imagePullPolicy | default "Always" }}
         resources:
@@ -37,7 +37,7 @@ spec:
         app: presidio-anonymizer
     spec:
       containers:
-      - image: '{{ .Values.anonymizer.imageRepository | default "mcr.microsoft.com/presidio-anonymizer" }}:{{ .Values.version | default "latest" }}'
+      - image: '{{ .Values.anonymizer.imageRepository | default "mcr.microsoft.com/presidio-anonymizer" }}:{{ .Values.imageVersion | default "latest" }}'
         name: presidio-anonymizer
         imagePullPolicy: {{ .Values.anonymizer.imagePullPolicy | default "Always" }}
         resources:
