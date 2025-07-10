@@ -1,12 +1,13 @@
 
 # Presidio version information: https://github.com/microsoft/presidio/releases
-imageVersion: latest
 
 # analyzer service configuration
 analyzer:
   replicas: 1
   imageRepository: mcr.microsoft.com/presidio-analyzer
   imagePullPolicy: Always
+  # Presidio version information: https://github.com/microsoft/presidio/releases
+  imageTag: latest
   resources:
     limits:
       cpu: 512m
@@ -20,6 +21,8 @@ anonymizer:
   replicas: 1
   imageRepository: mcr.microsoft.com/presidio-anonymizer
   imagePullPolicy: Always
+  # Presidio version information: https://github.com/microsoft/presidio/releases
+  imageTag: latest
   resources:
     limits:
       cpu: 512m
