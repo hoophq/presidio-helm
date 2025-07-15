@@ -12,6 +12,14 @@ spec:
       labels:
         app: presidio-analyzer
     spec:
+     {{- if .Values.analyzer.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.analyzer.nodeSelector | indent 8 }}
+      {{- end }}
+      {{- if .Values.analyzer.tolerations }}
+      tolerations:
+{{ toYaml .Values.analyzer.tolerations | indent 8 -}}
+      {{- end }}
       containers:
       - image: '{{ .Values.analyzer.imageRepository | default "mcr.microsoft.com/presidio-analyzer" }}:{{ .Values.analyzer.imageTag | default "latest" }}'
         name: presidio-analyzer
@@ -21,6 +29,7 @@ spec:
         ports:
         - containerPort: 3000
           name: api
+       
 ---
 apiVersion: apps/v1
 kind: Deployment
