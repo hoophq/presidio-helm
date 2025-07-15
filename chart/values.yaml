@@ -1,4 +1,3 @@
-
 # Presidio version information: https://github.com/microsoft/presidio/releases
 
 # analyzer service configuration
@@ -16,6 +15,15 @@ analyzer:
       cpu: 256m
       memory: 1024Mi
 
+  # -- Node labels for pod assignment
+  nodeSelector: {}
+
+  # -- Toleration labels for pod assignment
+  tolerations: []
+
+  # -- Affinity settings for pod assignment
+  affinity: {}
+
 # anonymizer service configuration
 anonymizer:
   replicas: 1
@@ -30,3 +38,12 @@ anonymizer:
     requests:
       cpu: 256m
       memory: 512Mi
+
+  # -- Node labels for pod assignment
+  nodeSelector: {}
+
+  # -- Toleration labels for pod assignment
+  tolerations: []
+
+  # -- Affinity settings for pod assignment
+  affinity: {}
