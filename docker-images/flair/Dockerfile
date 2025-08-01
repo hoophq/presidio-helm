@@ -1,5 +1,9 @@
 FROM mcr.microsoft.com/presidio-analyzer
 
+# cache publicsuffix to avoid HTTP requests when using the EMAIL_ADDRESS entity
+# https://github.com/microsoft/presidio/issues/1205
+RUN poetry run tldextract --update
+
 # Install Flair and its dependencies
 RUN poetry run pip install flair torch
 # Install Flair models
