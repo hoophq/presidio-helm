@@ -1,0 +1,119 @@
+# templates/hpa.yaml
+
+{{- if .Values.analyzer.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: presidio-analyzer-hpa
+  labels:
+    app: presidio-analyzer
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: presidio-analyzer
+  minReplicas: {{ .Values.analyzer.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.analyzer.autoscaling.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.analyzer.autoscaling.cpuAverageUtilization }}
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: {{ .Values.analyzer.autoscaling.scaleUpStabilizationWindowSeconds }}
+      policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: {{ .Values.analyzer.autoscaling.scaleDownStabilizationWindowSeconds }}
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 60
+{{- end }}
+
+---
+
+{{- if .Values.anonymizer.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: presidio-anonymizer-hpa
+  labels:
+    app: presidio-anonymizer
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: presidio-anonymizer
+  minReplicas: {{ .Values.anonymizer.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.anonymizer.autoscaling.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.anonymizer.autoscaling.cpuAverageUtilization }}
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: {{ .Values.anonymizer.autoscaling.scaleUpStabilizationWindowSeconds }}
+      policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: {{ .Values.anonymizer.autoscaling.scaleDownStabilizationWindowSeconds }}
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 60
+{{- end }}
+
+---
+
+{{- if .Values.envoyProxy.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: presidio-envoy-proxy-hpa
+  labels:
+    app: presidio-envoy-proxy
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: presidio-envoy-proxy
+  minReplicas: {{ .Values.envoyProxy.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.envoyProxy.autoscaling.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.envoyProxy.autoscaling.cpuAverageUtilization }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.envoyProxy.autoscaling.memoryAverageUtilization }}
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: {{ .Values.envoyProxy.autoscaling.scaleUpStabilizationWindowSeconds }}
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: {{ .Values.envoyProxy.autoscaling.scaleDownStabilizationWindowSeconds }}
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 120
+{{- end }}

@@ -1,9 +1,32 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: presidio-analyzer-config
+data:
+  gunicorn_config.py: |
+    {{- .Values.analyzer.gunicornConfigFile | nindent 4 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: presidio-anonymizer-config
+data:
+  gunicorn_config.py: |
+    {{- .Values.anonymizer.gunicornConfigFile | nindent 4 }}
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: presidio-analyzer
 spec:
+  {{- if not .Values.analyzer.autoscaling.enabled }}
   replicas: {{ .Values.analyzer.replicas | default 1 }}
+  {{- end }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0 
   selector:
     matchLabels:
       app: presidio-analyzer
@@ -11,16 +34,46 @@ spec:
     metadata:
       labels:
         app: presidio-analyzer
+      annotations:
+        checksum/gunicorn-config: {{ .Values.analyzer.gunicornConfigFile | sha256sum }}
     spec:
       containers:
       - image: '{{ .Values.analyzer.imageRepository | default "mcr.microsoft.com/presidio-analyzer" }}:{{ .Values.analyzer.imageTag | default "latest" }}'
         name: presidio-analyzer
-        imagePullPolicy: {{ .Values.analyzer.imagePullPolicy | default "Always" }}
+        imagePullPolicy: '{{ .Values.analyzer.imagePullPolicy | default "Always" }}'
+        command: ["gunicorn", "--config", "/opt/presidio/gunicorn_config.py", "app:create_app()"]
         resources:
           {{- toYaml .Values.analyzer.resources | nindent 10 }}
         ports:
         - containerPort: 3000
           name: api
+        env:
+        - name: GUNICORN_CMD_ARGS
+          value: '--config /opt/presidio/gunicorn_config.py'
+        volumeMounts:
+        - name: presidio-config
+          mountPath: /opt/presidio/gunicorn_config.py
+          subPath: gunicorn_config.py
+          readOnly: true
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 30   # give preload_app time to load models
+          periodSeconds: 10
+          failureThreshold: 3
+          successThreshold: 1
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 60
+          periodSeconds: 15
+          failureThreshold: 4
+      volumes:
+      - name: presidio-config
+        configMap:
+          name: presidio-analyzer-config
       {{- with .Values.analyzer.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -39,7 +92,14 @@ kind: Deployment
 metadata:
   name: presidio-anonymizer
 spec:
+  {{- if not .Values.anonymizer.autoscaling.enabled }}
   replicas: {{ .Values.anonymizer.replicas | default 1 }}
+  {{- end }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0 
   selector:
     matchLabels:
       app: presidio-anonymizer
@@ -47,16 +107,31 @@ spec:
     metadata:
       labels:
         app: presidio-anonymizer
+      annotations:
+        checksum/gunicorn-config: {{ .Values.anonymizer.gunicornConfigFile | sha256sum }}
     spec:
       containers:
       - image: '{{ .Values.anonymizer.imageRepository | default "mcr.microsoft.com/presidio-anonymizer" }}:{{ .Values.anonymizer.imageTag | default "latest" }}'
         name: presidio-anonymizer
         imagePullPolicy: {{ .Values.anonymizer.imagePullPolicy | default "Always" }}
+        command: ["gunicorn", "--config", "/opt/presidio/gunicorn_config.py", "app:create_app()"]
         resources:
           {{- toYaml .Values.anonymizer.resources | nindent 10 }}
         ports:
         - containerPort: 3000
           name: api
+        env:
+        - name: GUNICORN_CMD_ARGS
+          value: '--config /opt/presidio/gunicorn_config.py'
+        volumeMounts:
+        - name: presidio-config
+          mountPath: /opt/presidio/gunicorn_config.py
+          subPath: gunicorn_config.py
+          readOnly: true
+      volumes:
+      - name: presidio-config
+        configMap:
+          name: presidio-anonymizer-config
       {{- with .Values.anonymizer.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -70,28 +145,3 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: presidio-analyzer
-spec:
-  selector:
-    app: presidio-analyzer
-  ports:
-    - port: 3000
-      name: api
-      protocol: TCP
-      targetPort: 3000
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: presidio-anonymizer
-spec:
-  selector:
-    app: presidio-anonymizer
-  ports:
-    - port: 3000
-      name: api
-      protocol: TCP
-      targetPort: 3000
