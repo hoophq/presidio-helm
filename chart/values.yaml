@@ -1,5 +1,3 @@
-# Presidio version information: https://github.com/microsoft/presidio/releases
-
 # -- Analyzer service configuration
 analyzer:
   replicas: 1
@@ -8,6 +6,7 @@ analyzer:
   # Presidio version information: https://github.com/microsoft/presidio/releases
   imageTag: latest
 
+  # Presidio WSGI HTTP Server configuration
   gunicornConfigFile: |
     bind = '0.0.0.0:3000'
     workers = 2
@@ -19,12 +18,12 @@ analyzer:
     worker_class = 'gthread'
 
   resources:
-    limits:
-      cpu: 2100m
-      memory: 2048Mi
     requests:
       cpu: 1024m
       memory: 1024Mi
+    limits:
+      cpu: 2500m
+      memory: 2048Mi
 
   # -- AutoScaling: Horizontal Pod AutoScaler
   autoscaling:
@@ -55,6 +54,7 @@ anonymizer:
   # Presidio version information: https://github.com/microsoft/presidio/releases
   imageTag: latest
 
+  # Presidio WSGI HTTP Server configuration
   gunicornConfigFile: |
     bind = '0.0.0.0:3000'
     workers = 2
@@ -66,12 +66,12 @@ anonymizer:
     worker_class = 'gthread'
 
   resources:
-    limits:
-      cpu: 2048m
-      memory: 1024Mi
     requests:
       cpu: 256m
       memory: 512Mi
+    limits:
+      cpu: 2048m
+      memory: 1024Mi
 
   # -- AutoScaling: Horizontal Pod AutoScaler
   autoscaling:
@@ -97,15 +97,15 @@ anonymizer:
 # -- Envoy Proxy
 envoyProxy:
   replicas: 1
-  image: envoyproxy/envoy
+  imageRepository: envoyproxy/envoy
   imageTag: v1.33-latest
   resources:
-    limits:
-      cpu: 500m
-      memory: 128Mi
     requests:
       cpu: 100m
       memory: 64Mi
+    limits:
+      cpu: 500m
+      memory: 128Mi
 
   # -- AutoScaling: Horizontal Pod AutoScaler
   autoscaling:
