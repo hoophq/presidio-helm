@@ -1,19 +1,41 @@
-# Presidio version information: https://github.com/microsoft/presidio/releases
-
-# analyzer service configuration
+# -- Analyzer service configuration
 analyzer:
   replicas: 1
   imageRepository: mcr.microsoft.com/presidio-analyzer
   imagePullPolicy: Always
   # Presidio version information: https://github.com/microsoft/presidio/releases
   imageTag: latest
+
+  # Presidio WSGI HTTP Server configuration
+  gunicornConfigFile: |
+    bind = '0.0.0.0:3000'
+    workers = 2
+    threads = 4
+    timeout = 120
+    keep_alive = 65
+    preload_app = True
+    loglevel = 'debug'
+    worker_class = 'gthread'
+
   resources:
-    limits:
-      cpu: 512m
-      memory: 1024Mi
     requests:
-      cpu: 256m
+      cpu: 1024m
       memory: 1024Mi
+    limits:
+      cpu: 2500m
+      memory: 2048Mi
+
+  # -- AutoScaling: Horizontal Pod AutoScaler
+  autoscaling:
+    enabled: false
+    minReplicas: 2
+    maxReplicas: 6
+    # -- Target CPU utilization percentage to trigger scaling
+    cpuAverageUtilization: 70
+    # -- Seconds to wait before allowing further scale up after a scaling event
+    scaleUpStabilizationWindowSeconds: 30
+    # -- Seconds to wait before allowing further scale down after a scaling event
+    scaleDownStabilizationWindowSeconds: 120
 
   # -- Node labels for pod assignment
   nodeSelector: {}
@@ -24,20 +46,80 @@ analyzer:
   # -- Affinity settings for pod assignment
   affinity: {}
 
-# anonymizer service configuration
+# -- Anonymizer service configuration
 anonymizer:
   replicas: 1
   imageRepository: mcr.microsoft.com/presidio-anonymizer
   imagePullPolicy: Always
   # Presidio version information: https://github.com/microsoft/presidio/releases
   imageTag: latest
+
+  # Presidio WSGI HTTP Server configuration
+  gunicornConfigFile: |
+    bind = '0.0.0.0:3000'
+    workers = 2
+    threads = 4
+    timeout = 120
+    keep_alive = 65
+    preload_app = True
+    loglevel = 'debug'
+    worker_class = 'gthread'
+
   resources:
-    limits:
-      cpu: 512m
-      memory: 512Mi
     requests:
       cpu: 256m
       memory: 512Mi
+    limits:
+      cpu: 2048m
+      memory: 1024Mi
+
+  # -- AutoScaling: Horizontal Pod AutoScaler
+  autoscaling:
+    enabled: false
+    minReplicas: 2
+    maxReplicas: 4
+    # -- Target CPU utilization percentage to trigger scaling
+    cpuAverageUtilization: 70
+    # -- Seconds to wait before allowing further scale up after a scaling event
+    scaleUpStabilizationWindowSeconds: 30
+    # -- Seconds to wait before allowing further scale down after a scaling event
+    scaleDownStabilizationWindowSeconds: 120
+
+  # -- Node labels for pod assignment
+  nodeSelector: {}
+
+  # -- Toleration labels for pod assignment
+  tolerations: []
+
+  # -- Affinity settings for pod assignment
+  affinity: {}
+
+# -- Envoy Proxy
+envoyProxy:
+  replicas: 1
+  imageRepository: envoyproxy/envoy
+  imageTag: v1.33-latest
+  resources:
+    requests:
+      cpu: 100m
+      memory: 64Mi
+    limits:
+      cpu: 500m
+      memory: 128Mi
+
+  # -- AutoScaling: Horizontal Pod AutoScaler
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 3
+    # -- Target CPU utilization percentage to trigger scaling
+    cpuAverageUtilization: 75
+    # -- Target memory utilization percentage to trigger scaling
+    memoryAverageUtilization: 80
+    # -- Seconds to wait before allowing further scale up after a scaling event
+    scaleUpStabilizationWindowSeconds: 60
+    # -- Seconds to wait before allowing further scale down after a scaling event
+    scaleDownStabilizationWindowSeconds: 180
 
   # -- Node labels for pod assignment
   nodeSelector: {}

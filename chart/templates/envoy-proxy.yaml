@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: presidio-envoy-proxy
+  labels:
+    app: presidio-envoy-proxy
+spec:
+  {{- if not .Values.envoyProxy.autoscaling.enabled }}
+  replicas: {{ .Values.envoyProxy.replicas | default 1 }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: presidio-envoy-proxy
+  template:
+    metadata:
+      labels:
+        app: presidio-envoy-proxy
+      annotations:
+        checksum/envoy-config: {{ include (print $.Template.BasePath "/envoy-proxy-config.yaml") . | sha256sum }}
+    spec:
+      containers:
+      - name: envoy
+        image: '{{ .Values.envoyProxy.imageRepository | default "envoyproxy/envoy" }}:{{ .Values.envoyProxy.imageTag | default "v1.33-latest" }}'
+        imagePullPolicy: {{ .Values.envoyProxy.imagePullPolicy | default "Always" }}
+        resources:
+          {{- toYaml .Values.envoyProxy.resources | nindent 10 }}
+        ports:
+          - name: http
+            containerPort: 3010
+            protocol: TCP
+          - name: admin
+            containerPort: 9901
+            protocol: TCP  
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 9901
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /ready
+            port: 9901
+          initialDelaySeconds: 10
+          periodSeconds: 15
+        volumeMounts:
+          - name: envoy-config
+            mountPath: /etc/envoy
+            readOnly: true
+      {{- with .Values.envoyProxy.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.envoyProxy.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.envoyProxy.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: envoy-config
+          configMap:
+            name: envoy-presidio-config

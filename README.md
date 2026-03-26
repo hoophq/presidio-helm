@@ -8,8 +8,8 @@ To install a specific version, use the attribute `imageVersion`.
 
 ```sh
 helm upgrade --install presidio \
-	oci://ghcr.io/hoophq/helm-charts/presidio-chart --version v0.0.3 \
-	--set imageVersion=2.2.358
+	oci://ghcr.io/hoophq/helm-charts/presidio-chart --version v0.0.4 \
+	--set imageVersion=2.2.362
 ```
 
 See the release pages of Presidio for version information:
