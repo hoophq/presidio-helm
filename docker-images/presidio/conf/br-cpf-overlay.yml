@@ -1,0 +1,20 @@
+# Overlay fragment merged into upstream `default_recognizers.yaml` at image
+# build time (see Dockerfile). Only contains entries we *add* on top of the
+# upstream defaults — never modify or remove them here.
+#
+# Top-level keys other than `recognizers` are ignored by the merge step.
+
+recognizers:
+  - name: BrCpfRecognizer
+    type: predefined
+    country_code: br
+    supported_languages:
+      - language: en
+        context:
+          - cpf
+          - documento
+          - cadastro
+          - pessoa física
+          - pessoa fisica
+          - contribuinte
+          - receita federal
