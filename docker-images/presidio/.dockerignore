@@ -1,0 +1,25 @@
+# Repo metadata
+.git/
+.gitignore
+.github/
+
+# Project tooling — none of this needs to be in the build context
+Makefile
+README.md
+*.md
+tests/
+scripts/
+
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
